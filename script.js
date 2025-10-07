@@ -15,16 +15,16 @@ function showStatus(message, isError = false) {
   }
 }
 
-const MODEL_URL = 'https://justadudewhohacks.github.io/face-api.js/models';
+// 👉 Cargamos los modelos directamente desde el CDN oficial
+const MODEL_URL = 'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@master/weights';
 
-showStatus('Cargando modelos desde CDN...');
+showStatus('Cargando modelos de IA...');
 
 Promise.all([
   faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
   faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
   faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
-  faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
-  faceapi.nets.ageGenderNet.loadFromUri(MODEL_URL)
+  faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL)
 ])
   .then(() => {
     showStatus('Modelos cargados. Iniciando cámara...');
@@ -32,7 +32,7 @@ Promise.all([
   })
   .catch(err => {
     console.error('Error al cargar los modelos:', err);
-    showStatus('Error al cargar los modelos de IA desde el CDN.', true);
+    showStatus('❌ Error al cargar los modelos de IA. Verifica tu conexión.', true);
   });
 
 function startVideo() {
@@ -40,32 +40,32 @@ function startVideo() {
     .then(stream => {
       video.srcObject = stream;
       showStatus('Cámara iniciada. Detectando rostros...', false);
-      setTimeout(() => {
-        statusDiv.style.display = 'none';
-      }, 2000);
+      setTimeout(() => statusDiv.style.display = 'none', 2000);
     })
     .catch(err => {
       console.error('Error al acceder a la cámara:', err);
-      showStatus('Error: No se pudo acceder a la cámara. Asegúrate de dar permisos.', true);
+      showStatus('⚠️ No se pudo acceder a la cámara.', true);
     });
 }
 
 video.addEventListener('play', () => {
   const canvas = faceapi.createCanvasFromMedia(video);
   container.append(canvas);
-  
+
   const displaySize = { width: video.width, height: video.height };
   faceapi.matchDimensions(canvas, displaySize);
-  
+
   setInterval(async () => {
     try {
       const detections = await faceapi
         .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
         .withFaceLandmarks()
         .withFaceExpressions();
-      
+
       const resizedDetections = faceapi.resizeResults(detections, displaySize);
-      canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
       faceapi.draw.drawDetections(canvas, resizedDetections);
       faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
       faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
