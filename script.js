@@ -3,7 +3,6 @@ const container = document.getElementById('container');
 const statusDiv = document.getElementById('status');
 const errorDiv = document.getElementById('error');
 
-// Función para mostrar mensajes de estado
 function showStatus(message, isError = false) {
   if (isError) {
     errorDiv.textContent = message;
@@ -16,15 +15,16 @@ function showStatus(message, isError = false) {
   }
 }
 
-// Cargar los modelos desde la carpeta local "models"
-showStatus('Cargando modelos de IA...');
+const MODEL_URL = 'https://justadudewhohacks.github.io/face-api.js/models';
+
+showStatus('Cargando modelos desde CDN...');
 
 Promise.all([
-  faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
-  faceapi.nets.faceLandmark68Net.loadFromUri('./models'),
-  faceapi.nets.faceRecognitionNet.loadFromUri('./models'),
-  faceapi.nets.faceExpressionNet.loadFromUri('./models'),
-  faceapi.nets.ageGenderNet.loadFromUri('./models') // opcional
+  faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+  faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+  faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+  faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
+  faceapi.nets.ageGenderNet.loadFromUri(MODEL_URL)
 ])
   .then(() => {
     showStatus('Modelos cargados. Iniciando cámara...');
@@ -32,16 +32,11 @@ Promise.all([
   })
   .catch(err => {
     console.error('Error al cargar los modelos:', err);
-    showStatus('Error al cargar los modelos de IA. Verifica tu conexión a internet o los archivos en /models.', true);
+    showStatus('Error al cargar los modelos de IA desde el CDN.', true);
   });
 
 function startVideo() {
-  navigator.mediaDevices.getUserMedia({ 
-    video: { 
-      width: 720, 
-      height: 560 
-    } 
-  })
+  navigator.mediaDevices.getUserMedia({ video: { width: 720, height: 560 } })
     .then(stream => {
       video.srcObject = stream;
       showStatus('Cámara iniciada. Detectando rostros...', false);
@@ -56,14 +51,12 @@ function startVideo() {
 }
 
 video.addEventListener('play', () => {
-  // Crear el canvas y posicionarlo sobre el video
   const canvas = faceapi.createCanvasFromMedia(video);
   container.append(canvas);
   
   const displaySize = { width: video.width, height: video.height };
   faceapi.matchDimensions(canvas, displaySize);
   
-  // Detección continua de rostros
   setInterval(async () => {
     try {
       const detections = await faceapi
@@ -72,11 +65,7 @@ video.addEventListener('play', () => {
         .withFaceExpressions();
       
       const resizedDetections = faceapi.resizeResults(detections, displaySize);
-      
-      // Limpiar el canvas antes de dibujar
       canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Dibujar las detecciones
       faceapi.draw.drawDetections(canvas, resizedDetections);
       faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
       faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
@@ -84,5 +73,4 @@ video.addEventListener('play', () => {
       console.error('Error en la detección:', err);
     }
   }, 100);
-
 });
