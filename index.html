@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reconocimiento Facial - Apps Script</title>
+    <title>Reconocimiento Facial IA</title>
     <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <style>
         * {
@@ -16,16 +16,14 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             padding: 20px;
         }
 
         .header {
             color: white;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            animation: fadeIn 0.8s ease-in;
         }
 
         .header h1 {
@@ -39,13 +37,19 @@
             opacity: 0.9;
         }
 
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 20px;
+        }
+
         .container {
             background: white;
             border-radius: 20px;
             padding: 30px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            max-width: 800px;
-            width: 100%;
         }
 
         .video-container {
@@ -60,7 +64,7 @@
 
         video {
             width: 100%;
-            max-width: 640px;
+            max-width: 100%;
             border-radius: 15px;
         }
 
@@ -107,7 +111,7 @@
             color: white;
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
@@ -122,6 +126,16 @@
             box-shadow: 0 5px 15px rgba(235, 51, 73, 0.4);
         }
 
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4);
+        }
+
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -130,7 +144,7 @@
 
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 15px;
             margin-top: 20px;
         }
@@ -177,6 +191,11 @@
             to { transform: rotate(360deg); }
         }
 
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .hidden {
             display: none;
         }
@@ -186,6 +205,11 @@
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
+        }
+
+        .config-panel h3 {
+            margin-bottom: 15px;
+            color: #333;
         }
 
         .config-panel label {
@@ -202,12 +226,93 @@
             cursor: pointer;
         }
 
-        .config-panel input[type="number"] {
-            width: 80px;
-            padding: 5px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 1em;
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .detections-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .detections-panel h2 {
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .detection-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .detection-item .time {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .detection-item .info {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .detection-item .label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .detection-item .value {
+            color: #333;
+        }
+
+        .export-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .export-panel h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .export-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 600px) {
@@ -215,8 +320,12 @@
                 font-size: 1.8em;
             }
             
-            .container {
+            .container, .detections-panel, .export-panel {
                 padding: 20px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -224,50 +333,83 @@
 <body>
     <div class="header">
         <h1>🎭 Reconocimiento Facial IA</h1>
-        <p>Detección y registro automático en tiempo real</p>
+        <p>Detección y análisis en tiempo real con Face-API.js</p>
     </div>
 
-    <div class="container">
-        <div id="status">
-            <span class="loading"></span> Cargando modelos de inteligencia artificial...
-        </div>
-
-        <div class="config-panel">
-            <label>
-                <input type="checkbox" id="autoSave" checked>
-                <span>Guardar automáticamente en Google Sheets</span>
-            </label>
-            <label>
-                <span>Intervalo de guardado (segundos):</span>
-                <input type="number" id="saveInterval" value="5" min="3" max="60">
-            </label>
-        </div>
-
-        <div class="video-container">
-            <video id="video" width="640" height="480" autoplay muted playsinline></video>
-        </div>
-
-        <div class="controls">
-            <button id="btnStart" class="btn btn-primary" onclick="iniciarCamara()">
-                📹 Iniciar Cámara
-            </button>
-            <button id="btnStop" class="btn btn-danger hidden" onclick="detenerCamara()">
-                ⏹ Detener
-            </button>
-        </div>
-
-        <div class="stats">
-            <div class="stat-card">
-                <h3>Rostros Detectados</h3>
-                <p id="faceCount">0</p>
+    <div class="main-container">
+        <div class="container">
+            <div id="status">
+                <span class="loading"></span> Cargando modelos de inteligencia artificial...
             </div>
-            <div class="stat-card">
-                <h3>Estado</h3>
-                <p id="statusText">Inactivo</p>
+
+            <div class="config-panel">
+                <h3>⚙️ Configuración</h3>
+                <label>
+                    <input type="checkbox" id="showLandmarks" checked>
+                    <span>Mostrar puntos faciales</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="showExpressions" checked>
+                    <span>Mostrar expresiones</span>
+                </label>
+                <label>
+                    <input type="checkbox" id="autoRecord" checked>
+                    <span>Registrar detecciones automáticamente</span>
+                </label>
             </div>
-            <div class="stat-card success">
-                <h3>Registros Guardados</h3>
-                <p id="savedCount">0</p>
+
+            <div class="video-container">
+                <video id="video" width="640" height="480" autoplay muted playsinline></video>
+            </div>
+
+            <div class="controls">
+                <button id="btnStart" class="btn btn-primary" disabled>
+                    📹 Iniciar Cámara
+                </button>
+                <button id="btnStop" class="btn btn-danger hidden">
+                    ⏹ Detener
+                </button>
+            </div>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>Rostros Detectados</h3>
+                    <p id="faceCount">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Estado</h3>
+                    <p id="statusText">Inactivo</p>
+                </div>
+                <div class="stat-card success">
+                    <h3>Total Registros</h3>
+                    <p id="savedCount">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>FPS</h3>
+                    <p id="fpsCount">0</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="detections-panel">
+                <h2>📋 Últimas Detecciones</h2>
+                <div id="detectionsList"></div>
+            </div>
+
+            <div class="export-panel">
+                <h2>💾 Exportar Datos</h2>
+                <div class="export-buttons">
+                    <button class="btn btn-success" onclick="exportarJSON()">
+                        📄 Descargar JSON
+                    </button>
+                    <button class="btn btn-success" onclick="exportarCSV()">
+                        📊 Descargar CSV
+                    </button>
+                    <button class="btn btn-danger" onclick="limpiarDatos()">
+                        🗑️ Limpiar Historial
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -280,37 +422,38 @@
         const faceCountEl = document.getElementById('faceCount');
         const statusTextEl = document.getElementById('statusText');
         const savedCountEl = document.getElementById('savedCount');
-        const autoSaveCheck = document.getElementById('autoSave');
-        const saveIntervalInput = document.getElementById('saveInterval');
+        const fpsCountEl = document.getElementById('fpsCount');
+        const detectionsList = document.getElementById('detectionsList');
+        const showLandmarksCheck = document.getElementById('showLandmarks');
+        const showExpressionsCheck = document.getElementById('showExpressions');
+        const autoRecordCheck = document.getElementById('autoRecord');
 
         let stream = null;
         let detectionInterval = null;
-        let saveInterval = null;
-        let ultimasDetecciones = [];
-        let totalGuardados = 0;
-        let ultimoGuardado = 0;
+        let detecciones = [];
+        let lastTime = Date.now();
+        let fps = 0;
 
-        // Cargar modelos desde CDN
+        const MODEL_URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
+
+        // Cargar modelos
         async function loadModels() {
-            statusDiv.innerHTML = '<span class="loading"></span> Cargando modelos de IA... (puede tardar un momento)';
-            
-            const MODEL_URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
-            
             try {
+                statusDiv.innerHTML = '<span class="loading"></span> Cargando modelos de IA...';
+                
                 await Promise.all([
                     faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
                     faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-                    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
                     faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
                     faceapi.nets.ageGenderNet.loadFromUri(MODEL_URL)
                 ]);
                 
-                statusDiv.innerHTML = '✅ Modelos cargados correctamente - Presiona "Iniciar Cámara"';
+                statusDiv.innerHTML = '✅ ¡Listo! Presiona "Iniciar Cámara"';
                 btnStart.disabled = false;
                 
             } catch (err) {
-                console.error('Error al cargar modelos:', err);
-                statusDiv.innerHTML = '❌ Error al cargar modelos: ' + err.message;
+                console.error('Error:', err);
+                statusDiv.innerHTML = '❌ Error al cargar modelos';
             }
         }
 
@@ -325,43 +468,38 @@
                 });
                 
                 video.srcObject = stream;
-                statusDiv.innerHTML = '✅ Cámara activa - Detectando y guardando rostros automáticamente...';
+                statusDiv.innerHTML = '✅ Cámara activa';
                 statusTextEl.textContent = 'Activo';
                 
                 btnStart.classList.add('hidden');
                 btnStop.classList.remove('hidden');
                 
-                iniciarDeteccion();
-                iniciarGuardadoAutomatico();
+                video.addEventListener('play', iniciarDeteccion);
                 
             } catch (err) {
-                console.error('Error al acceder a la cámara:', err);
-                statusDiv.innerHTML = '❌ Error: No se pudo acceder a la cámara';
+                console.error('Error:', err);
+                statusDiv.innerHTML = '❌ Error al acceder a la cámara';
                 alert('No se pudo acceder a la cámara. Verifica los permisos.');
             }
         }
+
+        btnStart.onclick = iniciarCamara;
 
         // Detener cámara
         function detenerCamara() {
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
-                stream = null;
             }
             
             if (detectionInterval) {
                 clearInterval(detectionInterval);
-                detectionInterval = null;
-            }
-
-            if (saveInterval) {
-                clearInterval(saveInterval);
-                saveInterval = null;
             }
             
             video.srcObject = null;
-            statusDiv.innerHTML = '⏹ Cámara detenida';
+            statusDiv.innerHTML = '⏹ Detenido';
             statusTextEl.textContent = 'Inactivo';
             faceCountEl.textContent = '0';
+            fpsCountEl.textContent = '0';
             
             btnStart.classList.remove('hidden');
             btnStop.classList.add('hidden');
@@ -370,9 +508,11 @@
             if (canvas) canvas.remove();
         }
 
-        // Función para dibujar texto con fondo
+        btnStop.onclick = detenerCamara;
+
+        // Dibujar texto con fondo
         function drawTextWithBackground(ctx, text, x, y, fontSize = 16) {
-            ctx.font = ${fontSize}px Arial;
+            ctx.font = `${fontSize}px Arial`;
             ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
             
             const textMetrics = ctx.measureText(text);
@@ -385,61 +525,62 @@
             ctx.fillText(text, x, y);
         }
 
-        // Iniciar detección en tiempo real
+        // Iniciar detección
         function iniciarDeteccion() {
-            video.addEventListener('play', () => {
-                const canvas = faceapi.createCanvasFromMedia(video);
-                document.querySelector('.video-container').append(canvas);
+            const canvas = faceapi.createCanvasFromMedia(video);
+            document.querySelector('.video-container').append(canvas);
+            
+            const displaySize = { width: video.videoWidth, height: video.videoHeight };
+            faceapi.matchDimensions(canvas, displaySize);
+            
+            detectionInterval = setInterval(async () => {
+                const currentTime = Date.now();
+                fps = Math.round(1000 / (currentTime - lastTime));
+                lastTime = currentTime;
+                fpsCountEl.textContent = fps;
+
+                const detections = await faceapi
+                    .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+                    .withFaceLandmarks()
+                    .withFaceExpressions()
+                    .withAgeAndGender();
                 
-                const displaySize = { width: video.videoWidth, height: video.videoHeight };
-                faceapi.matchDimensions(canvas, displaySize);
+                const resizedDetections = faceapi.resizeResults(detections, displaySize);
                 
-                detectionInterval = setInterval(async () => {
-                    const detections = await faceapi
-                        .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
-                        .withFaceLandmarks()
-                        .withFaceExpressions()
-                        .withAgeAndGender();
-                    
-                    const resizedDetections = faceapi.resizeResults(detections, displaySize);
-                    
-                    const ctx = canvas.getContext('2d');
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    
-                    faceCountEl.textContent = detections.length;
-                    
-                    // Limpiar array de detecciones anteriores
-                    ultimasDetecciones = [];
-                    
-                    faceapi.draw.drawDetections(canvas, resizedDetections);
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                faceCountEl.textContent = detections.length;
+                
+                faceapi.draw.drawDetections(canvas, resizedDetections);
+                
+                if (showLandmarksCheck.checked) {
                     faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+                }
+                
+                resizedDetections.forEach(detection => {
+                    const { age, gender, genderProbability, expressions } = detection;
+                    const box = detection.detection.box;
                     
-                    resizedDetections.forEach(detection => {
-                        const { age, gender, genderProbability, expressions } = detection;
-                        const box = detection.detection.box;
-                        
-                        let textY = box.bottomLeft.y + 25;
-                        const textX = box.bottomLeft.x;
-                        
-                        drawTextWithBackground(ctx, Edad: ${Math.round(age)} años, textX, textY, 18);
-                        textY += 30;
-                        
-                        const genderText = Género: ${gender === 'male' ? 'Masculino' : 'Femenino'} (${Math.round(genderProbability * 100)}%);
-                        drawTextWithBackground(ctx, genderText, textX, textY, 18);
+                    let textY = box.bottomLeft.y + 25;
+                    const textX = box.bottomLeft.x;
+                    
+                    drawTextWithBackground(ctx, `Edad: ${Math.round(age)} años`, textX, textY, 18);
+                    textY += 30;
+                    
+                    const genderText = `Género: ${gender === 'male' ? 'Masculino' : 'Femenino'} (${Math.round(genderProbability * 100)}%)`;
+                    drawTextWithBackground(ctx, genderText, textX, textY, 18);
+                    
+                    if (showExpressionsCheck.checked) {
                         textY += 35;
                         
-                        const expressionEntries = Object.entries(expressions);
-                        const sortedExpressions = expressionEntries.sort((a, b) => b[1] - a[1]);
-                        
                         const expressionNames = {
-                            neutral: 'Neutral',
-                            happy: 'Feliz',
-                            sad: 'Triste',
-                            angry: 'Enojado',
-                            fearful: 'Asustado',
-                            disgusted: 'Disgustado',
+                            neutral: 'Neutral', happy: 'Feliz', sad: 'Triste',
+                            angry: 'Enojado', fearful: 'Asustado', disgusted: 'Disgustado',
                             surprised: 'Sorprendido'
                         };
+                        
+                        const sortedExpressions = Object.entries(expressions).sort((a, b) => b[1] - a[1]);
                         
                         drawTextWithBackground(ctx, 'Expresiones:', textX, textY, 16);
                         textY += 25;
@@ -450,74 +591,117 @@
                             drawTextWithBackground(ctx, expressionText, textX, textY, 14);
                             textY += 22;
                         }
-                        
-                        // Guardar detección actual
-                        ultimasDetecciones.push({
-                            edad: Math.round(age),
-                            genero: gender === 'male' ? 'Masculino' : 'Femenino',
-                            expresion: expressionNames[sortedExpressions[0][0]],
-                            confianza: Math.round(sortedExpressions[0][1] * 100),
-                            numeroRostros: detections.length
-                        });
-                    });
-                    
-                }, 100);
-            });
-        }
-
-        // Iniciar guardado automático
-        function iniciarGuardadoAutomatico() {
-            const intervaloSegundos = parseInt(saveIntervalInput.value) || 5;
-            
-            saveInterval = setInterval(() => {
-                if (autoSaveCheck.checked && ultimasDetecciones.length > 0) {
-                    guardarDatosAutomatico();
-                }
-            }, intervaloSegundos * 1000);
-        }
-
-        // Guardar datos automáticamente
-        function guardarDatosAutomatico() {
-            const ahora = Date.now();
-            
-            // Evitar guardados muy seguidos (mínimo 2 segundos)
-            if (ahora - ultimoGuardado < 2000) {
-                return;
-            }
-            
-            if (ultimasDetecciones.length === 0) {
-                return;
-            }
-            
-            ultimoGuardado = ahora;
-            
-            // Mostrar indicador de guardado
-            statusDiv.innerHTML = '💾 Guardando detecciones...';
-            
-            google.script.run
-                .withSuccessHandler(function(result) {
-                    if (result.success) {
-                        totalGuardados += ultimasDetecciones.length;
-                        savedCountEl.textContent = totalGuardados;
-                        statusDiv.innerHTML = '✅ Datos guardados - Detectando rostros...';
-                        console.log('✅ Guardado exitoso:', result.mensaje);
-                    } else {
-                        statusDiv.innerHTML = '⚠ Error al guardar - Continuando detección...';
-                        console.error('Error al guardar:', result.error);
                     }
-                })
-                .withFailureHandler(function(error) {
-                    statusDiv.innerHTML = '⚠ Error de conexión - Continuando detección...';
-                    console.error('Error de conexión:', error.message);
-                })
-                .guardarDeteccionesMultiples(ultimasDetecciones);
+                    
+                    if (autoRecordCheck.checked) {
+                        registrarDeteccion(detection);
+                    }
+                });
+                
+            }, 100);
         }
 
-        // Iniciar carga de modelos al cargar la página
-        window.addEventListener('load', () => {
-            console.log('Página cargada, iniciando carga de modelos...');
-            loadModels();
-        });
+        // Registrar detección
+        function registrarDeteccion(detection) {
+            const { age, gender, genderProbability, expressions } = detection;
+            const expressionNames = {
+                neutral: 'Neutral', happy: 'Feliz', sad: 'Triste',
+                angry: 'Enojado', fearful: 'Asustado', disgusted: 'Disgustado',
+                surprised: 'Sorprendido'
+            };
+            
+            const sortedExpressions = Object.entries(expressions).sort((a, b) => b[1] - a[1]);
+            
+            const deteccion = {
+                timestamp: new Date().toISOString(),
+                edad: Math.round(age),
+                genero: gender === 'male' ? 'Masculino' : 'Femenino',
+                confianzaGenero: Math.round(genderProbability * 100),
+                expresionPrincipal: expressionNames[sortedExpressions[0][0]],
+                confianzaExpresion: Math.round(sortedExpressions[0][1] * 100)
+            };
+            
+            detecciones.push(deteccion);
+            savedCountEl.textContent = detecciones.length;
+            
+            actualizarListaDetecciones();
+        }
+
+        // Actualizar lista de detecciones
+        function actualizarListaDetecciones() {
+            const ultimas = detecciones.slice(-10).reverse();
+            
+            detectionsList.innerHTML = ultimas.map(d => `
+                <div class="detection-item">
+                    <div class="time">${new Date(d.timestamp).toLocaleString('es-PE')}</div>
+                    <div class="info">
+                        <span class="label">Edad:</span>
+                        <span class="value">${d.edad} años</span>
+                        <span class="label">Género:</span>
+                        <span class="value">${d.genero} (${d.confianzaGenero}%)</span>
+                        <span class="label">Expresión:</span>
+                        <span class="value">${d.expresionPrincipal} (${d.confianzaExpresion}%)</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Exportar JSON
+        function exportarJSON() {
+            if (detecciones.length === 0) {
+                alert('No hay detecciones para exportar');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(detecciones, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `detecciones_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Exportar CSV
+        function exportarCSV() {
+            if (detecciones.length === 0) {
+                alert('No hay detecciones para exportar');
+                return;
+            }
+            
+            const headers = ['Fecha/Hora', 'Edad', 'Género', 'Confianza Género', 'Expresión', 'Confianza Expresión'];
+            const rows = detecciones.map(d => [
+                new Date(d.timestamp).toLocaleString('es-PE'),
+                d.edad,
+                d.genero,
+                d.confianzaGenero + '%',
+                d.expresionPrincipal,
+                d.confianzaExpresion + '%'
+            ]);
+            
+            const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `detecciones_${Date.now()}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Limpiar datos
+        function limpiarDatos() {
+            if (confirm('¿Estás seguro de que deseas eliminar todos los registros?')) {
+                detecciones = [];
+                savedCountEl.textContent = '0';
+                detectionsList.innerHTML = '<p style="text-align: center; color: #999;">No hay detecciones registradas</p>';
+            }
+        }
+
+        // Iniciar
+        window.addEventListener('load', loadModels);
     </script>
 </body>
 </html>
+
