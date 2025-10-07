@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reconocimiento Facial con JavaScript 😎</title>
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+  <script defer src="./script.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    #container {
+      position: relative;
+      display: inline-block;
+    }
+    video {
+      border-radius: 10px;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    #status, #error {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #status { background: #cce5ff; color: #004085; }
+    #error { background: #f8d7da; color: #721c24; }
+  </style>
+</head>
+<body>
+  <h1>Reconocimiento Facial con JavaScript 😎</h1>
+  <div id="container">
+    <video id="video" width="720" height="560" autoplay muted></video>
+  </div>
+  <div id="status"></div>
+  <div id="error"></div>
+</body>
+</html>
