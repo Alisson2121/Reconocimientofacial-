@@ -24,7 +24,7 @@ Promise.all([
   faceapi.nets.faceLandmark68Net.loadFromUri('./models'),
   faceapi.nets.faceRecognitionNet.loadFromUri('./models'),
   faceapi.nets.faceExpressionNet.loadFromUri('./models'),
-  faceapi.nets.ageGenderNet.loadFromUri('./models') // opcional si tienes este modelo
+  faceapi.nets.ageGenderNet.loadFromUri('./models') // opcional
 ])
   .then(() => {
     showStatus('Modelos cargados. Iniciando cámara...');
@@ -84,4 +84,5 @@ video.addEventListener('play', () => {
       console.error('Error en la detección:', err);
     }
   }, 100);
+
 });
