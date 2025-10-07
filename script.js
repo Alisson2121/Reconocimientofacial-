@@ -56,11 +56,15 @@ async function registrarAsistencia(detectionData, nombrePersona) {
 // Cargar modelos
 showStatus('Cargando modelos de IA...');
 
+// Cargar los modelos desde la carpeta local "models"
+showStatus('Cargando modelos de IA...');
+
 Promise.all([
-  faceapi.nets.tinyFaceDetector.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights'),
-  faceapi.nets.faceLandmark68Net.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights'),
-  faceapi.nets.faceRecognitionNet.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights'),
-  faceapi.nets.faceExpressionNet.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights')
+  faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
+  faceapi.nets.faceLandmark68Net.loadFromUri('./models'),
+  faceapi.nets.faceRecognitionNet.loadFromUri('./models'),
+  faceapi.nets.faceExpressionNet.loadFromUri('./models'),
+  faceapi.nets.ageGenderNet.loadFromUri('./models') // opcional si tienes este modelo
 ])
   .then(() => {
     showStatus('Modelos cargados. Iniciando cámara...');
@@ -68,7 +72,7 @@ Promise.all([
   })
   .catch(err => {
     console.error('Error al cargar los modelos:', err);
-    showStatus('Error al cargar los modelos de IA.', true);
+    showStatus('Error al cargar los modelos de IA. Verifica tu conexión a internet o los archivos en /models.', true);
   });
 
 function startVideo() {
@@ -145,4 +149,5 @@ video.addEventListener('play', () => {
       console.error('Error en la detección:', err);
     }
   }, 100);
+
 });
