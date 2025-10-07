@@ -3,46 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reconocimiento Facial con JavaScript 😎</title>
-  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+  <title>Sistema de Asistencia Facial</title>
+
+  <!-- Librería face-api.js desde CDN -->
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+
+  <!-- Tu script -->
   <script defer src="./script.js"></script>
+
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
+      font-family: Arial, sans-serif;
       text-align: center;
-      background: #f4f4f4;
-      margin: 0;
+      background: #eef2ff;
       padding: 20px;
-    }
-    #container {
-      position: relative;
-      display: inline-block;
     }
     video {
       border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
-    canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-    #status, #error {
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 5px;
-      display: none;
-      width: fit-content;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    #status { background: #cce5ff; color: #004085; }
-    #error { background: #f8d7da; color: #721c24; }
   </style>
 </head>
 <body>
-  <h1>Reconocimiento Facial con JavaScript 😎</h1>
+  <h1>📸 Sistema de Asistencia Facial</h1>
   <div id="container">
-    <video id="video" width="720" height="560" autoplay muted></video>
+    <video id="video" width="720" height="560" autoplay muted playsinline></video>
   </div>
   <div id="status"></div>
   <div id="error"></div>
