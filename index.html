@@ -3,71 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Asistencia con Reconocimiento Facial 😎</title>
+  <title>Reconocimiento Facial con JavaScript 😎</title>
   <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
   <script defer src="./script.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       text-align: center;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #f4f4f4;
       margin: 0;
       padding: 20px;
-      min-height: 100vh;
-    }
-    h1 {
-      color: white;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
     #container {
       position: relative;
       display: inline-block;
-      margin: 20px 0;
-      border-radius: 15px;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
     video {
-      display: block;
-      border-radius: 15px;
+      border-radius: 10px;
     }
     canvas {
       position: absolute;
       top: 0;
       left: 0;
-    }
-    .controls {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 400px;
-      margin: 20px auto;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 2px solid #667eea;
-      border-radius: 5px;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
-    button {
-      background: #667eea;
-      color: white;
-      border: none;
-      padding: 12px 30px;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.3s;
-      margin-top: 10px;
-    }
-    button:hover {
-      background: #5568d3;
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
     }
     #status, #error {
       margin-top: 10px;
@@ -78,34 +35,15 @@
       margin-left: auto;
       margin-right: auto;
     }
-    #status { 
-      background: #d4edda; 
-      color: #155724; 
-      border: 1px solid #c3e6cb;
-    }
-    #error { 
-      background: #f8d7da; 
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
+    #status { background: #cce5ff; color: #004085; }
+    #error { background: #f8d7da; color: #721c24; }
   </style>
 </head>
 <body>
-  <h1>📸 Sistema de Asistencia con Reconocimiento Facial</h1>
-  
+  <h1>Reconocimiento Facial con JavaScript 😎</h1>
   <div id="container">
-    <video id="video" width="720" height="560" autoplay muted playsinline></video>
+    <video id="video" width="720" height="560" autoplay muted></video>
   </div>
-  
-  <div class="controls">
-    <h3>Registro de Asistencia</h3>
-    <input type="text" id="personName" placeholder="Ingresa tu nombre">
-    <button id="registerBtn">✅ Registrar Asistencia</button>
-    <p style="font-size: 12px; color: #666; margin-top: 15px;">
-      ⏰ Registro automático cada 5 minutos
-    </p>
-  </div>
-  
   <div id="status"></div>
   <div id="error"></div>
 </body>
